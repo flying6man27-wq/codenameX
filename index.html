@@ -358,12 +358,7 @@
         </div>
         <div class="field">
           <label>선호 시기</label>
-          <div class="chip-group" id="dateGroup">
-            <div class="chip" data-value="추석 전(9월)">추석 전(9월)</div>
-            <div class="chip" data-value="추석 연휴">추석 연휴</div>
-            <div class="chip" data-value="추석 후(10월)">추석 후(10월)</div>
-            <div class="chip" data-value="상관없음">상관없음</div>
-          </div>
+          <input type="date" id="preferredDate" min="2026-09-12" max="2026-10-18" required>
         </div>
         <div class="field">
           <label>남기실 말씀 <span class="hint">선택</span></label>
@@ -393,9 +388,7 @@
   const submitBtn = document.getElementById('submitBtn');
   const successBox = document.getElementById('successBox');
   const hasKidsGroup = document.getElementById('hasKidsGroup');
-  const dateGroup = document.getElementById('dateGroup');
   let hasKidsVal = '';
-  let dateVal = '';
 
   function setupChips(group, setter){
     group.querySelectorAll('.chip').forEach(chip=>{
@@ -407,7 +400,6 @@
     });
   }
   setupChips(hasKidsGroup, v=>hasKidsVal=v);
-  setupChips(dateGroup, v=>dateVal=v);
 
   form.addEventListener('submit', async function(e){
     e.preventDefault();
@@ -421,22 +413,26 @@
     const adults = document.getElementById('adults').value;
     const kids = document.getElementById('kids').value;
     const memo = document.getElementById('memo').value;
+    const [prefYear, prefMonth, prefDay] = document.getElementById('preferredDate').value.split('-');
 
-    const formData = new FormData();
-    formData.append('entry.1449095392', company);
-    formData.append('entry.129896462', name);
-    formData.append('entry.1574536826', dept);
-    formData.append('entry.2027168930', contact);
-    formData.append('entry.217262840', hasKidsVal);
-    formData.append('entry.164989541', adults);
-    formData.append('entry.806349586', kids);
-    formData.append('entry.678870928', memo);
-    if(dateVal) formData.append('entry.1404086662', dateVal);
+    const params = new URLSearchParams();
+    params.append('entry.1449095392', company);
+    params.append('entry.1449095392_sentinel', '');
+    params.append('entry.129896462', name);
+    params.append('entry.1574536826', dept);
+    params.append('entry.2027168930', contact);
+    params.append('entry.217262840', hasKidsVal);
+    params.append('entry.164989541', adults);
+    params.append('entry.806349586', kids);
+    params.append('entry.1404086662_year', prefYear);
+    params.append('entry.1404086662_month', String(Number(prefMonth)));
+    params.append('entry.1404086662_day', String(Number(prefDay)));
+    if(memo) params.append('entry.678870928', memo);
 
     try{
       await fetch('https://docs.google.com/forms/d/e/1FAIpQLSfXNF-ReMjx9Zw_WoT1_Zvf75u0qO3pP__6LPtvYQgBVwHFAw/formResponse', {
         method: 'POST',
-        body: formData,
+        body: params,
         mode: 'no-cors'
       });
       form.style.display = 'none';
@@ -449,4 +445,3 @@
   });
 })();
 </script>
-
